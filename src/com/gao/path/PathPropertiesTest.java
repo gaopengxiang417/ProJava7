@@ -75,12 +75,12 @@ public class PathPropertiesTest {
          * with a separater between them
          */
         Path resolvePath2 = path.resolve("C:/replace.txt");
-        System.out.println(resolvePath2);
+        System.out.println("resolve : "+resolvePath2);
 
 
         Path siblingPath = path.resolveSibling("replace.txt");
 
-        System.out.println(siblingPath);
+        System.out.println("resolveSibling : "+siblingPath);
 
         Path siblingPath2 = path.resolveSibling("C:/replace.txt");
         System.out.println(siblingPath2);

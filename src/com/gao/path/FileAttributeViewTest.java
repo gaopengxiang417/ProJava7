@@ -31,7 +31,7 @@ public class FileAttributeViewTest {
         }*/
 
 
-        Path path = Paths.get("D:\\daily\\BR_BRAND_CRM_zfb_20111215", "brandcrm.properties");
+        Path path = Paths.get("D:\\", "a.txt");
 
        /* FileStore fileStore = Files.getFileStore(path);
 

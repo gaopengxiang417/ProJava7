@@ -16,7 +16,7 @@ import java.util.List;
 public class AclAttributeViewTest {
     public static void main(String[] args) throws IOException {
 
-        Path path = FileSystems.getDefault().getPath("D:\\daily\\BR_BRAND_CRM_gpx_20120214", "brandcrm.properties");
+        Path path = FileSystems.getDefault().getPath("D:\\", "a.txt");
 
         AclFileAttributeView fileAttributeView = Files.getFileAttributeView(path, AclFileAttributeView.class, LinkOption.NOFOLLOW_LINKS);
 

@@ -7,30 +7,41 @@ import java.nio.channels.FileChannel;
 import java.nio.file.*;
 
 import static java.nio.file.StandardOpenOption.*;
+
 /**
  * User: gaopengxiang
  * Date: 12-4-20
  * Time: 上午10:06
  */
 public class CopyFileEffectiveTest {
-    public static void deleteFile(Path file){
+    public static void deleteFile(Path file) {
         try {
             Files.deleteIfExists(file);
         } catch (IOException e) {
             System.out.println("delete file error...");
         }
     }
-    public static void main(String[] args) {
-        Path from_path = FileSystems.getDefault().getPath("D:\\music\\english", "Need You Now.mp3");
-        Path to_path = FileSystems.getDefault().getPath("D:/", "Need You Now.mp3");
 
-        long startTime,eclipseTime;
+    public static void main(String[] args) throws IOException {
+
+        Path apath = Paths.get("D:/text.txt");
+
+
+        Path from_path = FileSystems.getDefault().getPath("D:\\source.txt");
+        //首先往里面写数据
+        byte[] testBytes = Files.readAllBytes(apath);
+        for ( int i = 0 ; i < 4 ; i++){
+            Files.write(from_path , testBytes, StandardOpenOption.APPEND);
+        }
+        Path to_path = FileSystems.getDefault().getPath("D:/", "target.txt");
+
+        long startTime, eclipseTime;
 
         deleteFile(to_path);
 
         //first fileChannel with non-direct buffer
-        try(FileChannel from_fileChannel = FileChannel.open(from_path,READ);
-            FileChannel to_fileChannel = FileChannel.open(to_path,WRITE,CREATE_NEW)) {
+        try (FileChannel from_fileChannel = FileChannel.open(from_path, READ);
+             FileChannel to_fileChannel = FileChannel.open(to_path, WRITE, CREATE_NEW)) {
 
             startTime = System.nanoTime();
             ByteBuffer byteBuffer = ByteBuffer.allocate((int) from_fileChannel.size());
@@ -41,7 +52,7 @@ public class CopyFileEffectiveTest {
             byteBuffer.clear();
 
             eclipseTime = System.nanoTime() - startTime;
-            System.out.println("eclipse time is:"+eclipseTime/1000000000.0);
+            System.out.println("bytebuffer eclipse time is:" + eclipseTime / 1000000000.0);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -49,8 +60,8 @@ public class CopyFileEffectiveTest {
         //second fileChannel with direct buffer
         deleteFile(to_path);
 
-        try(FileChannel from_fileChannel = FileChannel.open(from_path,READ);
-            FileChannel to_fileChannel = FileChannel.open(to_path,WRITE,CREATE_NEW)) {
+        try (FileChannel from_fileChannel = FileChannel.open(from_path, READ);
+             FileChannel to_fileChannel = FileChannel.open(to_path, WRITE, CREATE_NEW)) {
 
             startTime = System.nanoTime();
 
@@ -62,7 +73,7 @@ public class CopyFileEffectiveTest {
             byteBuffer.clear();
 
             eclipseTime = System.nanoTime() - startTime;
-            System.out.println("eclipse time is:"+eclipseTime/1000000000.0);
+            System.out.println("direct byte buffer eclipse time is:" + eclipseTime / 1000000000.0);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -70,30 +81,30 @@ public class CopyFileEffectiveTest {
         //third fileChannel.transferTo
         deleteFile(to_path);
 
-        try(FileChannel from_fileChannel = FileChannel.open(from_path,READ);
-            FileChannel to_fileChannel = FileChannel.open(to_path,CREATE_NEW,WRITE)) {
+        try (FileChannel from_fileChannel = FileChannel.open(from_path, READ);
+             FileChannel to_fileChannel = FileChannel.open(to_path, CREATE_NEW, WRITE)) {
 
             startTime = System.nanoTime();
 
             from_fileChannel.transferTo(0, from_fileChannel.size(), to_fileChannel);
 
             eclipseTime = System.nanoTime() - startTime;
-            System.out.println("eclipse time is:"+eclipseTime / 1000000000.0);
+            System.out.println(" channel transferto eclipse time is:" + eclipseTime / 1000000000.0);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         //fourth fileChannel.transferFrom
         deleteFile(to_path);
-        try(FileChannel from_fileChannel = FileChannel.open(from_path,READ);
-            FileChannel to_fileChannel = FileChannel.open(to_path,CREATE_NEW,WRITE)) {
+        try (FileChannel from_fileChannel = FileChannel.open(from_path, READ);
+             FileChannel to_fileChannel = FileChannel.open(to_path, CREATE_NEW, WRITE)) {
 
             startTime = System.nanoTime();
 
             to_fileChannel.transferFrom(from_fileChannel, 0, from_fileChannel.size());
 
             eclipseTime = System.nanoTime() - startTime;
-            System.out.println("eclipse time is:"+eclipseTime / 1000000000.0);
+            System.out.println("channel transfer from eclipse time is:" + eclipseTime / 1000000000.0);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -101,8 +112,8 @@ public class CopyFileEffectiveTest {
         //fifth fileChannel.map
         deleteFile(to_path);
 
-        try(FileChannel from_fileChannel = FileChannel.open(from_path,READ);
-            FileChannel to_fileChannel = FileChannel.open(to_path,WRITE,CREATE_NEW)) {
+        try (FileChannel from_fileChannel = FileChannel.open(from_path, READ);
+             FileChannel to_fileChannel = FileChannel.open(to_path, WRITE, CREATE_NEW)) {
 
             startTime = System.nanoTime();
 
@@ -112,7 +123,7 @@ public class CopyFileEffectiveTest {
             byteBuffer.clear();
 
             eclipseTime = System.nanoTime() - startTime;
-            System.out.println("eclipse time is:"+eclipseTime / 1000000000.0);
+            System.out.println(" mapped byte buffer eclipse time is:" + eclipseTime / 1000000000.0);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -120,8 +131,8 @@ public class CopyFileEffectiveTest {
         //sixth bufferedStream
         deleteFile(to_path);
 
-        try(BufferedInputStream bufferedInputStream = new BufferedInputStream(Files.newInputStream(from_path,READ));
-            BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(Files.newOutputStream(to_path,WRITE,CREATE_NEW))) {
+        try (BufferedInputStream bufferedInputStream = new BufferedInputStream(Files.newInputStream(from_path, READ));
+             BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(Files.newOutputStream(to_path, WRITE, CREATE_NEW))) {
 
             startTime = System.nanoTime();
 
@@ -131,7 +142,7 @@ public class CopyFileEffectiveTest {
             bufferedOutputStream.write(bytes);
 
             eclipseTime = System.nanoTime() - startTime;
-            System.out.println("eclipse time is:"+eclipseTime/1000000000.0);
+            System.out.println("buffered stream eclipse time is:" + eclipseTime / 1000000000.0);
 
             bytes = null;
         } catch (IOException e) {
@@ -141,8 +152,8 @@ public class CopyFileEffectiveTest {
         //seventh non-buffered stream
         deleteFile(to_path);
 
-        try(FileInputStream fileInputStream = new FileInputStream(from_path.toFile());
-            FileOutputStream fileOutputStream = new FileOutputStream(to_path.toFile())) {
+        try (FileInputStream fileInputStream = new FileInputStream(from_path.toFile());
+             FileOutputStream fileOutputStream = new FileOutputStream(to_path.toFile())) {
 
             startTime = System.nanoTime();
 
@@ -152,7 +163,7 @@ public class CopyFileEffectiveTest {
             fileOutputStream.write(bytes);
 
             eclipseTime = System.nanoTime() - startTime;
-            System.out.println("eclipse time is:"+eclipseTime/1000000000.0);
+            System.out.println("file stream eclipse time is:" + eclipseTime / 1000000000.0);
 
             bytes = null;
         } catch (FileNotFoundException e) {
@@ -165,11 +176,11 @@ public class CopyFileEffectiveTest {
         deleteFile(to_path);
 
         try {
-            startTime  = System.nanoTime();
+            startTime = System.nanoTime();
             Files.copy(from_path, to_path);
 
             eclipseTime = System.nanoTime() - startTime;
-            System.out.println("eclipse time is:"+eclipseTime / 1000000000.0);
+            System.out.println("files copy eclipse time is:" + eclipseTime / 1000000000.0);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -177,13 +188,13 @@ public class CopyFileEffectiveTest {
         //ninth Files.copy(path,outputStream)
         deleteFile(to_path);
 
-        try(OutputStream outputStream = Files.newOutputStream(to_path)) {
+        try (OutputStream outputStream = Files.newOutputStream(to_path)) {
             startTime = System.nanoTime();
 
             Files.copy(from_path, outputStream);
 
             eclipseTime = System.nanoTime() - startTime;
-            System.out.println("eclispe time is:"+eclipseTime / 1000000000.0);
+            System.out.println("eclispe time is:" + eclipseTime / 1000000000.0);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -191,12 +202,12 @@ public class CopyFileEffectiveTest {
         //tenth Files.copy(inputstream,path)
 
         deleteFile(to_path);
-        try(InputStream inputStream = Files.newInputStream(from_path, StandardOpenOption.READ)) {
+        try (InputStream inputStream = Files.newInputStream(from_path, StandardOpenOption.READ)) {
             startTime = System.nanoTime();
 
             Files.copy(inputStream, to_path);
             eclipseTime = System.nanoTime() - startTime;
-            System.out.println("eclipse time is:"+eclipseTime / 1000000000.0);
+            System.out.println("eclipse time is:" + eclipseTime / 1000000000.0);
         } catch (IOException e) {
             e.printStackTrace();
         }

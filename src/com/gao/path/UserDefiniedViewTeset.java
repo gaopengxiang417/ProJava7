@@ -15,7 +15,7 @@ import java.util.List;
 public class UserDefiniedViewTeset {
     public static void main(String[] args) throws IOException {
 
-        Path path = FileSystems.getDefault().getPath("D:\\daily\\BR_BRAND_CRM_gpx_20120214", "brandcrm.properties");
+        Path path = FileSystems.getDefault().getPath("D:\\daily\\BR_BRAND_PRM_gpx_20130411", "brandprm.test.union.properties");
 
 
         FileStore fileStore = Files.getFileStore(path);
